@@ -1,9 +1,10 @@
 require './card'
 require './deck'
 require './player'
+require './dealer'
 
 # ゲームの進行
-def run_game
+def run_game(count)
   # 初期手札2枚の準備,手札公開,得点表示
   deck = Deck.new
   deck.shuffle
@@ -13,64 +14,30 @@ def run_game
   dealer = Dealer.new
   dealer.first_draw(deck)
   dealer.score_count
-
   #ユーザーのターン
   while true do
     number = rand(11)
-    if number == 3 && (player.instance_variable_get :@hands).length >= 3 && player.score_count >= 11 && player.score_count != 21
-      puts "山札が輝きだした！\n山札を信じて引きますか？[Y/N]"
-      puts "あなたの得点: #{player.score_count}"
-      answer = gets.chomp.to_s
-      if answer == "Y" || answer == "y"
-        player.destiny_draw(deck, player)
-        unless blackjack?(player)
-          break
-        end
-      elsif answer == "N" || answer == "n"
-        puts
-        puts "さらにカードを引きますか？[Y/N]"
-        puts "あなたの得点: #{player.score_count}"
-        answer = gets.chomp.to_s
-        puts "Answer: #{answer}"
-        if answer == "Y" || answer == "y"
-          player.draw(deck, player)
-          unless burst?(player)
-            exit
-          end
-          unless blackjack?(player)
-            break
-          end
-        elsif answer == "N" || answer == "n"
-          break
-        else
-          puts "無効な値です。もう一度入力してください。"
-        end
-      else
-        puts "無効な値です。もう一度入力してください。"
+    puts
+    puts "さらにカードを引きますか？[y/n]"
+    puts "あなたの得点: #{player.score_count}"
+    answer = gets.chomp.to_s
+    puts "Answer: #{answer}"
+    if answer == "Y" || answer == "y"
+      player.draw(deck, player)
+      unless burst?(player)
+        return true
       end
-    else # 通常時の処理
-      puts
-      puts "さらにカードを引きますか？[Y/N]"
-      puts "あなたの得点: #{player.score_count}"
-      answer = gets.chomp.to_s
-      puts "Answer: #{answer}"
-      if answer == "Y" || answer == "y"
-        player.draw(deck, player)
-        unless burst?(player)
-          exit
-        end
-        unless blackjack?(player)
-          break
-        end
-      elsif answer == "N" || answer == "n"
+      unless blackjack?(player)
         break
-      else
-        puts "無効な値です。もう一度入力してください。"
       end
+    elsif answer == "N" || answer == "n"
+      break
+    else
+      puts "無効な値です。もう一度入力してください。"
     end
   end
 
-#ディーラーのターン
+  #ディーラーのターン
   while true do
     if dealer.score_count < 17
       dealer.draw(deck, dealer)
@@ -78,15 +45,10 @@ def run_game
       break
     end
   end
-
-  judge(player, dealer)
-
-end
-
-# 勝敗判定
-def judge(player, dealer)
+  # 勝敗判定
   player_score = player.score_count
   dealer_score = dealer.score_count
+  
   puts
   puts "----- あなたの得点 -----"
   puts "#{player_score}"
@@ -97,15 +59,17 @@ def judge(player, dealer)
     puts "引き分け"
   elsif player_score == 21
     puts "ブラックジャック！\nあなたの勝ちです！"
+    return "win"
   elsif dealer_score == 21
     puts "ディーラーのブラックジャック！\nあなたの負けです..."
   elsif dealer_score > 21
-    puts "ディーラーはバーストしました。"
-    puts "あなたの勝ちです！"
+    puts "ディーラーはバーストしました。\nあなたの勝ちです！"
+    return "win"
   elsif dealer_score > player_score
     puts "あなたの負けです..."
   elsif dealer_score < player_score
     puts "あなたの勝ちです！"
+    return "win"
   end
 end
 
@@ -134,4 +98,26 @@ puts "---------------------"
 puts "ブラックジャックへようこそ！"
 puts "---------------------"
 puts
-run_game
+count = 0
+victory = 0
+while true do
+  puts "-------------------------"
+  puts "---試合数: #{count}戦---"
+  puts "---勝利数: #{victory}勝---"
+  puts "-------------------------"
+  puts "---0: 対戦する---"
+  puts "---1: 終了する---"
+  
+  case gets.to_i
+  when 0
+    result = run_game(count)
+    if result == "win"
+      victory += 1
+    end
+    count += 1
+  when 1
+    exit
+  else
+    puts "無効な値です"
+  end
+end

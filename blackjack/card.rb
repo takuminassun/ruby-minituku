@@ -13,6 +13,8 @@ class Card
   def count
     if @number == "J" || @number == "Q" || @number == "K"
       return @number = 10
+    elsif @number == "A"
+      return @number = 1
     else
       return @number.to_i
     end

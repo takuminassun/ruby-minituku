@@ -7,8 +7,8 @@ class Deck
 
 # 山札作成
   def build
-    for suit in ["♡", "♠", "♦︎", "♣︎"] do
-      for number in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"] do
+    for suit in ["❤︎", "♠", "♦︎", "♣︎"] do
+      for number in ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"] do
         card = Card.new(suit, number)
         @cards << card
       end
@@ -17,10 +17,11 @@ class Deck
 
 # 山札シャッフル
   def shuffle
-    cards_length =(@cards.count) - 1
+    cards_length = (@cards.count) - 1
+    # cards_lengthが1になるまでcards_lengthを-1ずつ増やす
     cards_length.step(1,-1) do |i|
       r = rand(i)
-      @cards[i] , @cards[r] = @cards[r], @cards[i]
+      @cards[i], @cards[r] = @cards[r], @cards[i]
     end
   end
 
